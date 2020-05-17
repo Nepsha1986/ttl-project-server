@@ -1,8 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
+
+const userRoutes = require('./api/user/user.routes');
+
 const app = express();
-const User = require('./api/models/user.model');
 const Event = require('./api/models/event.model');
+
+const router = express.Router();
 
 const uri = "mongodb://127.0.0.1:27017/ttl-project";
 const port = process.env.PORT || 3000;
@@ -26,14 +30,7 @@ app.get('/events', (req, res, next) => {
     })
 });
 
-app.post('/user/create', (req, res, next) => {
-    User.create(req.body, (err, user) => {
-        if (err) {
-            return next(err);
-        }
-        console.log('success!');
-        res.json(user);
-    });
-});
+app.use('/',router);
+userRoutes(router);
 
 app.listen(port);
