@@ -1,4 +1,4 @@
-const User = require('./user.dao');
+const {User} = require('./user.dao');
 const bcrypt = require('bcrypt');
 
 exports.createUser = (req, res, next) => {
@@ -15,4 +15,34 @@ exports.createUser = (req, res, next) => {
                 res.json(user);
             });
         });
+};
+
+exports.auth = (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    User.findOne({ email: email}, (err, docs) => {
+        if (err || docs === null) return next(err);
+
+        // Checking if pass is valid
+        bcrypt.compare(password, docs.password).then((result) => {
+            if(result) {
+                let user = new User({
+                    username: docs.name,
+                    password: docs.password,
+                    email: docs.email
+                });
+
+                let token = user.generateAuthToken();
+
+                res.header("x-auth-token", token).send({
+                    name: docs.username,
+                    email: docs.email
+                });
+
+            } else {
+                res.status(401).send('Authentication failed.')
+            }
+        });
+    });
 };
