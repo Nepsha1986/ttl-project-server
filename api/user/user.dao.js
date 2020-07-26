@@ -12,7 +12,9 @@ UserSchema.statics = {
     }
 };
 
-UserSchema.methods.generateAuthToken = () => jwt.sign({ _id: this._id, isAdmin: this.isAdmin }, config.get('private_key'));
+UserSchema.methods.generateAuthToken = function() {
+    return jwt.sign({ _id: this._id, email: this.email }, config.get('private_key'));
+};
 
 const User = mongoose.model('User', UserSchema);
 
